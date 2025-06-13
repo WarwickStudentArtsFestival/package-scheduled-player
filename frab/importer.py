@@ -34,21 +34,23 @@ def get_schedule(url, group, timezone='UTC'):
         def all_events():
             schedule = json.loads(json_str)["schedule"]["conference"]
             for day in schedule["days"]:
-                for room in day["rooms"]:
-                    for event in room["events"]:
+                for room_name, events in day["rooms"].items():
+                    for event in events:
                         yield event
 
         parsed_events = []
         for event in all_events():
+            if not event.get('date'):
+                continue
             local_zone = pytz.timezone(timezone)
-            start = dateutil.parser.parse(event['start']).astimezone(local_zone)
+            start = dateutil.parser.parse(event['date']).astimezone(local_zone)
             duration = parse_duration(event['duration'])
             end = start + duration
             drop_in = False
 
             for answer in event.get('answers', []):
                 if answer['question'] == 8:
-                    persons = [answer['answer']]
+                    persons = [answer['answer'].strip()]
                 elif answer['question'] == 11:
                     drop_in = answer['answer'] == 'True'
 
@@ -65,11 +67,10 @@ def get_schedule(url, group, timezone='UTC'):
                 place = text_or_empty(event, 'room'),
                 abstract = text_or_empty(event, 'abstract'),
                 speakers = [
-                    unicode(person.text.strip())
-                    for person in persons
+                    persons
                 ] if persons else [],
                 lang = text_or_empty(event, 'language'),
-                id = event.attrib["id"],
+                id = event["id"],
                 group = group,
                 drop_in = drop_in,
             ))
@@ -141,3 +142,10 @@ def get_schedule(url, group, timezone='UTC'):
     if url.endswith('.json'):
         return load_schedule_wsaf_json(schedule)
     return load_events(schedule)
+
+if __name__ == "__main__":
+    url = "https://submit.wsaf.org.uk/2025/p/broadcast-tools/wsaf_schedule.json"
+
+    schedule = get_schedule(url, "example", timezone='Europe/London')
+
+    print(schedule)
