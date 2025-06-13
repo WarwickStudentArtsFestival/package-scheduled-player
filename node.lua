@@ -14,8 +14,8 @@ local easing = require "easing"
 
 local min, max, abs, floor, ceil = math.min, math.max, math.abs, math.floor, math.ceil
 
-local font_regl = resource.load_font "default-font.ttf"
-local font_bold = resource.load_font "default-font-bold.ttf"
+local font_regl = resource.load_font "LexendDeca-Regular.ttf"
+local font_bold = resource.load_font "LexendDeca-Bold.ttf"
 local font_7seg = resource.load_font "7segment.ttf"
 
 local colored = resource.create_shader[[
@@ -528,7 +528,7 @@ local function dispatch_to_all_tiles(event, ...)
             local ok, err = xpcall(fn, debug.traceback, ...)
             if not ok then
                 log(
-                    "dispatch_to_all_tiles", 
+                    "dispatch_to_all_tiles",
                     "cannot dispatch '%s' into '%s': %s",
                     event, module_name, err
                 )
@@ -575,8 +575,8 @@ local gl_effects = {
             local enter_t = min(t-starts, 1)
             local exit_t = 1-max(0, 1-(ends-t))
             local effect_value = (
-              -easing[effect_easing](1-enter_t, 0, 1, 1) 
-              +easing[effect_easing](1-exit_t,  0, 1, 1) 
+              -easing[effect_easing](1-enter_t, 0, 1, 1)
+              +easing[effect_easing](1-exit_t,  0, 1, 1)
             )
 
             gl.pushMatrix()
@@ -1140,8 +1140,8 @@ local function TimeTile(asset, config, x1, y1, x2, y2)
         local unit = size/30
 
         local hand_img
-        
-        if clock_style == 1 then 
+
+        if clock_style == 1 then
             hand_img = resource.load_image{
                 file = "hand-1.png",
                 mipmap = true,
@@ -1161,7 +1161,7 @@ local function TimeTile(asset, config, x1, y1, x2, y2)
         --         for i = 0, 55,5 do
         --             if i % 15 == 0 then
         --                 pixel:draw(radius-unit, -unit/2, radius, unit/2, 0.8)
-        --             else 
+        --             else
         --                 pixel:draw(radius-unit/2, -unit/4, radius, unit/4, 0.8)
         --             end
         --             gl.rotate(360/60*5, 0, 0, 1)

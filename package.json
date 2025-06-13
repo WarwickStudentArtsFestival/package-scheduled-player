@@ -3,7 +3,7 @@
     "author": "Florian Wesch <fw@info-beamer.com>",
     "desc": "A schedulable playlist player with custom pages, plugins and animations",
     "repository": "https://github.com/WarwickStudentArtsFestival/package-scheduled-player",
-    "version": "2025-06-13c",
+    "version": "2025-06-13d",
     "lifecycle": "production",
     "platforms": ["pi/epoch-1", "pi/epoch-2"],
     "runtime": {
