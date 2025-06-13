@@ -22,7 +22,7 @@ try:
     sim_date, sim_time = config.time.strip().split()
     d, m, y = sim_date.split('.')
     ho, mi = sim_time.split(':')
-    diff = datetime(int(y), int(m), int(d), int(ho), int(mi), 00) - datetime.utcnow() 
+    diff = datetime(int(y), int(m), int(d), int(ho), int(mi), 00) - datetime.utcnow()
 except:
     diff = timedelta()
 print >>sys.stderr, "timedelta for simulation: %r" % (diff,)
@@ -49,11 +49,11 @@ def main():
         events = []
         for schedule in config.schedule_urls:
             print >>sys.stderr, "fetching %s" % schedule['url']
-            events.extend(importer.get_schedule(schedule['url'], schedule['group']))
+            events.extend(importer.get_schedule(schedule['url'], schedule['group'], config.timezone))
             print >>sys.stderr, "done. now ", len(events)
 
         if not events:
-            print >>sys.stderr, "no events" 
+            print >>sys.stderr, "no events"
             time.sleep(60)
             continue
 

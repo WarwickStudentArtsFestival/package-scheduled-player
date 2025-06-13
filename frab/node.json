@@ -1,10 +1,10 @@
 {
-    "name": "Plugin: Frab",
+    "name": "Plugin: Frab - WSAF",
     "permissions": {
         "network": "Has to fetch schedule from remote site"
     },
     "options": [{
-        "title": "Frab Conference Plugin",
+        "title": "Frab Conference Plugin - WSAF",
         "type": "section"
     }, {
         "title": "Font",
@@ -18,7 +18,7 @@
         "name": "info_font",
         "type": "font",
         "default": "silkscreen.ttf"
-    }, 
+    },
 
     {
         "title": "Scheduling",
@@ -32,6 +32,7 @@
         "options": [
             ["UTC", "UTC"],
             ["Europe/Berlin", "Europa / Berlin"],
+            ["Europe/London", "Europe / London"],
             ["US/Central", "US / Central"],
             ["US/Eastern", "US / Eastern"],
             ["US/Michigan", "US / Michigan"],

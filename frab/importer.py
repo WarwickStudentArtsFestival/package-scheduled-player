@@ -2,11 +2,79 @@ import pytz
 import requests
 import calendar
 from datetime import timedelta
+import json
 
 import dateutil.parser
 import defusedxml.ElementTree as ET
 
-def get_schedule(url, group):
+def get_schedule(url, group, timezone='UTC'):
+    def load_schedule_wsaf_json(json_str):
+        def to_unixtimestamp(dt):
+            dt = start.astimezone(pytz.utc)
+            ts = int(calendar.timegm(dt.timetuple()))
+            return ts
+
+        def text_or_empty(object, key):
+            value = object.get(key)
+            if value is None:
+                return ""
+            return unicode(value)
+
+        def parse_duration(value):
+            parts = map(int, value.split(':'))
+            if len(parts) == 3:
+                d, h, m = parts
+                return timedelta(days=d, hours=h, minutes=m)
+            elif len(parts) == 2:
+                h, m = parts
+                return timedelta(hours=h, minutes=m)
+            raise ValueError("invalid duration")
+
+
+        def all_events():
+            schedule = json.loads(json_str)["schedule"]["conference"]
+            for day in schedule["days"]:
+                for room in day["rooms"]:
+                    for event in room["events"]:
+                        yield event
+
+        parsed_events = []
+        for event in all_events():
+            local_zone = pytz.timezone(timezone)
+            start = dateutil.parser.parse(event['start']).astimezone(local_zone)
+            duration = parse_duration(event['duration'])
+            end = start + duration
+            drop_in = False
+
+            for answer in event.get('answers', []):
+                if answer['question'] == 8:
+                    persons = [answer['answer']]
+                elif answer['question'] == 11:
+                    drop_in = answer['answer'] == 'True'
+
+
+            parsed_events.append(dict(
+                start = start.astimezone(pytz.utc),
+                start_str = start.strftime('%H:%M'),
+                end_str = end.strftime('%H:%M'),
+                start_unix  = to_unixtimestamp(start),
+                end_unix = to_unixtimestamp(end),
+                duration = int(duration.total_seconds() / 60),
+                title = text_or_empty(event, 'title'),
+                track = text_or_empty(event, 'track'),
+                place = text_or_empty(event, 'room'),
+                abstract = text_or_empty(event, 'abstract'),
+                speakers = [
+                    unicode(person.text.strip())
+                    for person in persons
+                ] if persons else [],
+                lang = text_or_empty(event, 'language'),
+                id = event.attrib["id"],
+                group = group,
+                drop_in = drop_in,
+            ))
+        return parsed_events
+
     def load_events(xml):
         def to_unixtimestamp(dt):
             dt = dt.astimezone(pytz.utc)
@@ -57,7 +125,7 @@ def get_schedule(url, group):
                 place = text_or_empty(event, 'room'),
                 abstract = text_or_empty(event, 'abstract'),
                 speakers = [
-                    unicode(person.text.strip()) 
+                    unicode(person.text.strip())
                     for person in persons
                 ] if persons else [],
                 lang = text_or_empty(event, 'language'),
@@ -69,4 +137,7 @@ def get_schedule(url, group):
     r = requests.get(url)
     r.raise_for_status()
     schedule = r.content
+
+    if url.endswith('.json'):
+        return load_schedule_wsaf_json(schedule)
     return load_events(schedule)
