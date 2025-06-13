@@ -66,9 +66,7 @@ def get_schedule(url, group, timezone='UTC'):
                 track = text_or_empty(event, 'track'),
                 place = text_or_empty(event, 'room'),
                 abstract = text_or_empty(event, 'abstract'),
-                speakers = [
-                    persons
-                ] if persons else [],
+                speakers = persons if persons else [],
                 lang = text_or_empty(event, 'language'),
                 id = event["id"],
                 group = group,
